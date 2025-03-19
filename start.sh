@@ -21,7 +21,7 @@ echo "Directory created: /etc/letsencrypt/live/$DOMAIN"
 
 # Replace environment variables in the Nginx template
 envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
-envsubst '${DOMAIN} ${INSTANCE}'< docker/pretix/pretix.template.conf > docker/pretix/pretix.conf
+envsubst '${DOMAIN} ${INSTANCE}' < docker/pretix/pretix.template.cfg > docker/pretix/pretix.cfg
 
 echo "Added the $DOMAIN to the nginx.conf"
 docker compose down
@@ -33,7 +33,7 @@ read -p "Press 'y' to confirm and move on: " confirm
 if [ "$confirm" = "y" ]; then
     echo "Starting docker container and setting up SSL certificate"
     docker compose up -d --build --force-recreate
-
+    docker compose run --rm certbot renew --force-renewal
     # Define the cron job
     CRON_JOB="0 3 * * * docker compose run --rm certbot renew"
     
