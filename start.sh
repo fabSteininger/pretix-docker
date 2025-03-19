@@ -3,6 +3,7 @@
 # Check if the user provided a variable
 export INSTANCE="my_instance"
 export DOMAIN="my_domain"
+EMAIL="your@email.com"
 
 # Start docker service with certbot
 docker compose up -d certbot
@@ -33,7 +34,8 @@ read -p "Press 'y' to confirm and move on: " confirm
 if [ "$confirm" = "y" ]; then
     echo "Starting docker container and setting up SSL certificate"
     docker compose up -d --build --force-recreate
-    docker compose run --rm certbot renew --force-renewal
+    rmdir certbot/conf/live
+    docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email
     # Define the cron job
     CRON_JOB="0 3 * * * docker compose run --rm certbot renew"
     
