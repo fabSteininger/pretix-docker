@@ -20,8 +20,8 @@ sudo docker exec -it certbot sh -c "
 echo "Directory created: /etc/letsencrypt/live/$DOMAIN"
 
 # Replace environment variables in the Nginx template
-envsubst < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
-envsubst < docker/pretix/pretix.template.conf > docker/pretix/pretix.conf
+envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
+envsubst '${DOMAIN} ${INSTANCE}'< docker/pretix/pretix.template.conf > docker/pretix/pretix.conf
 
 echo "Added the $DOMAIN to the nginx.conf"
 docker compose down
