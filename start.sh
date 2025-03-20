@@ -3,7 +3,22 @@
 # Check if the user provided a variable
 export INSTANCE="my_instance"
 export DOMAIN="my_domain"
+# Email for Let's Encrypt certificate
 EMAIL="your@email.com"
+# Config for SMTP Service
+export MAIL="FROM_MAIL"
+export HOST="MAIL_SERVER"
+export USER="USERNAME"
+export MAIL_PASSWORD="FOOBAR"
+export PORT="587"
+export TLS="off"
+export SSL="off"
+
+
+
+# Generate Postgres Password
+export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*()_+-=' | fold -w 16 | head -n 1)
+echo DB PASSWORD = $PASSWORD
 
 # Start docker service with certbot
 docker compose up -d certbot
@@ -22,7 +37,10 @@ echo "Directory created: /etc/letsencrypt/live/$DOMAIN"
 
 # Replace environment variables in the Nginx template
 envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
-envsubst '${DOMAIN} ${INSTANCE}' < docker/pretix/pretix.template.cfg > docker/pretix/pretix.cfg
+# Setup pretix
+envsubst '${PASSWORD} ${DOMAIN} ${INSTANCE} ${MAIL} ${HOST} ${USER} ${PORT} ${MAIL_PASSWORD} ${TLS} ${SSL}' < docker/pretix/pretix.template.cfg > docker/pretix/pretix.cfg
+# Replace PASSWORD in docker-compose.yml 
+envsubst '${PASSWORD}' < docker-compose.template.yml > docker-compose.yml
 
 echo "Added the $DOMAIN to the nginx.conf"
 docker compose down
@@ -34,7 +52,7 @@ read -p "Press 'y' to confirm and move on: " confirm
 if [ "$confirm" = "y" ]; then
     echo "Starting docker container and setting up SSL certificate"
     docker compose up -d --build --force-recreate
-    sleep 60
+    sleep 45
     rm -r certbot/conf/live/$DOMAIN
     docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email
     # Define the cron job
@@ -42,7 +60,9 @@ if [ "$confirm" = "y" ]; then
     
     # Check if the cron job already exists, if not, add it
     (crontab -l 2>/dev/null | grep -F "$CRON_JOB") || (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
-
+    # Restart the ngnix container to apply signed certificate
+    sleep 10
+    docker compose restart pretix_app
     echo "Setup finished - Check now on your $DOMAIN"
 else
     echo "You did not press 'y'. Exiting."
