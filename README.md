@@ -6,24 +6,15 @@ Used under Debian 12
 ## Usage
 
 Install Docker
+https://docs.docker.com/engine/install/debian/
+
+Get all files
 ```bash
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+git clone https://github.com/fabSteininger/pretix-docker.git
+cd pretix-docker
 ```
-Start everything with the script start.sh edit the variables before, the script then automatically generates a certificate via certbot for the given domain.
+
+Edit the variables in the script e.g. with nano start.sh
 ```yaml
 # Check if the user provided a variable
 export INSTANCE="my_instance"
@@ -38,6 +29,12 @@ export MAIL_PASSWORD="FOOBAR"
 export PORT="587"
 export TLS="off"
 export SSL="off"
+```
+
+start the script and follow the instructions
+```bash
+chmod +x start.sh
+sudo bash start.sh
 ```
 
 ## The docker compose setup is based on
