@@ -17,7 +17,7 @@ export SSL="off"
 
 
 # Generate Postgres Password
-export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%&()' | fold -w 16 | head -n 1)
+export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#%&()' | fold -w 16 | head -n 1)
 echo DB PASSWORD = $PASSWORD
 
 # Replace PASSWORD in docker-compose.yml 
