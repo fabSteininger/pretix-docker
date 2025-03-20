@@ -17,7 +17,7 @@ export SSL="off"
 
 
 # Generate Postgres Password
-export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*()_+-=' | fold -w 16 | head -n 1)
+export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%&()' | fold -w 16 | head -n 1)
 echo DB PASSWORD = $PASSWORD
 
 # Replace PASSWORD in docker-compose.yml 
@@ -54,7 +54,8 @@ read -p "Press 'y' to confirm and move on: " confirm
 if [ "$confirm" = "y" ]; then
     echo "Starting docker container and setting up SSL certificate"
     docker compose up -d --build --force-recreate
-    sleep 45
+    echo "Sleep for 2 minutes"
+    sleep 120
     rm -r certbot/conf/live/$DOMAIN
     docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email
     # Define the cron job
@@ -64,7 +65,7 @@ if [ "$confirm" = "y" ]; then
     (crontab -l 2>/dev/null | grep -F "$CRON_JOB") || (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
     # Restart the ngnix container to apply signed certificate
     sleep 10
-    docker compose restart pretix_app
+    sudo docker compose restart
     echo "Setup finished - Check now on your $DOMAIN"
 else
     echo "You did not press 'y'. Exiting."
