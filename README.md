@@ -39,3 +39,7 @@ sudo bash start.sh
 
 ## The docker compose setup is based on
 https://github.com/ZPascal/pretix-docker-compose/tree/main
+
+## Login with default credentials and change them
+- **Username:** admin@localhost
+- **Password:** admin
