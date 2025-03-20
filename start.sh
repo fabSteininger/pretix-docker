@@ -20,6 +20,9 @@ export SSL="off"
 export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*()_+-=' | fold -w 16 | head -n 1)
 echo DB PASSWORD = $PASSWORD
 
+# Replace PASSWORD in docker-compose.yml 
+envsubst '${PASSWORD}' < docker-compose.template.yml > docker-compose.yml
+
 # Start docker service with certbot
 docker compose up -d certbot
 
@@ -39,8 +42,7 @@ echo "Directory created: /etc/letsencrypt/live/$DOMAIN"
 envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
 # Setup pretix
 envsubst '${PASSWORD} ${DOMAIN} ${INSTANCE} ${MAIL} ${HOST} ${USER} ${PORT} ${MAIL_PASSWORD} ${TLS} ${SSL}' < docker/pretix/pretix.template.cfg > docker/pretix/pretix.cfg
-# Replace PASSWORD in docker-compose.yml 
-envsubst '${PASSWORD}' < docker-compose.template.yml > docker-compose.yml
+
 
 echo "Added the $DOMAIN to the nginx.conf"
 docker compose down
