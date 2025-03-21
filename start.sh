@@ -9,10 +9,21 @@ EMAIL="your@email.com"
 export MAIL="FROM_MAIL"
 export HOST="MAIL_SERVER"
 export USER="USERNAME"
-export MAIL_PASSWORD="FOOBAR"
+export MAILPW="FOOBAR"
 export PORT="587"
 export TLS="off"
 export SSL="off"
+
+# Generate Postgres Password
+export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#%&()äöüÄÖÜß' | fold -w 16 | head -n 1)
+echo DB PASSWORD = $PASSWORD
+ 
+# Replace PASSWORD in docker-compose.yml 
+envsubst '${PASSWORD}' < template.temp > docker-compose.yml
+ # Replace environment variables in the Nginx template
+envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
+# Setup pretix
+envsubst '${DOMAIN} ${INSTANCE} ${MAIL} ${HOST} ${USER} ${PORT} ${MAILPW} ${TLS} ${SSL}' < docker/pretix/pretix.template.cfg > docker/pretix/pretix.cfg
 
 # Start docker service with certbot
 docker compose up -d certbot
@@ -28,12 +39,6 @@ sudo docker exec -it certbot sh -c "
     -subj '/CN=localhost'"
 
 echo "Directory created: /etc/letsencrypt/live/$DOMAIN"
-
-# Replace environment variables in the Nginx template
-envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
-# Setup pretix
-envsubst '${DOMAIN} ${INSTANCE} ${MAIL} ${HOST} ${USER} ${PORT} ${MAIL_PASSWORD} ${TLS} ${SSL}' < docker/pretix/pretix.template.cfg > docker/pretix/pretix.cfg
-
 
 echo "Added the $DOMAIN to the nginx.conf"
 docker compose down
