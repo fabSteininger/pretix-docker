@@ -44,8 +44,8 @@ read -p "Press 'y' to confirm and move on: " confirm
 if [ "$confirm" = "y" ]; then
     echo "Starting docker container and setting up SSL certificate"
     docker compose up -d --build --force-recreate
-    echo "Sleep for 2 minutes"
-    sleep 120
+    echo "Sleep for 3 minutes"
+    sleep 180
     rm -r certbot/conf/live/$DOMAIN
     docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email
    
