@@ -48,15 +48,20 @@ if [ "$confirm" = "y" ]; then
     sleep 120
     rm -r certbot/conf/live/$DOMAIN
     docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email
-    # Define the cron job
-    CRON_JOB="0 3 * * * docker compose run --rm certbot renew"
-    
-    # Check if the cron job already exists, if not, add it
-    (crontab -l 2>/dev/null | grep -F "$CRON_JOB") || (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+   
     # Restart the ngnix container to apply signed certificate
-    sleep 10
-    sudo docker compose restart
-    echo "Setup finished - Check now on your $DOMAIN"
+    read -p "Check now if the Domain is running with a not signed certificate y to move on: " confirm1
+    if [ "$confirm" = "y" ]; then
+       docker compose down
+       docker compose up -d --build --force-recreate
+       echo "Setup finished - Check now on your $DOMAIN"
+        # Define the cron job
+        CRON_JOB="0 3 * * * docker compose run --rm certbot renew"
+        # Check if the cron job already exists, if not, add it
+        (crontab -l 2>/dev/null | grep -F "$CRON_JOB") || (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+    else
+       echo "something went wrong then"
+    fi
 else
     echo "You did not press 'y'. Exiting."
 fi
