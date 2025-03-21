@@ -38,7 +38,7 @@ services:
     restart: always
     environment:
       - POSTGRES_USER=pretix
-      - POSTGRES_PASSWORD=${PASSWORD}
+      - POSTGRES_PASSWORD=pretix
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
