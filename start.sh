@@ -14,12 +14,6 @@ export PORT="587"
 export TLS="off"
 export SSL="off"
 
-# Generate Postgres Password
-export PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#%&()äöüÄÖÜß' | fold -w 16 | head -n 1)
-echo DB PASSWORD = $PASSWORD
- 
-# Replace PASSWORD in docker-compose.yml 
-envsubst '${PASSWORD}' < template.temp > docker-compose.yml
  # Replace environment variables in the Nginx template
 envsubst '${DOMAIN}' < docker/pretix/nginx/nginx.template.conf > docker/pretix/nginx/nginx.conf
 # Setup pretix
